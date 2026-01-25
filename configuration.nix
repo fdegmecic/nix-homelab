@@ -123,6 +123,54 @@
     openFirewall = true;
   };
 
+  services.homepage-dashboard = {
+    enable = true;
+    openFirewall = true;
+    allowedHosts = "fdegmecic-homelab.local:8082,192.168.100.71:8082,localhost:8082";
+    services = [
+      {
+        "Media" = [
+          { "Jellyfin" = { href = "http://fdegmecic-homelab.local:8096"; description = "Watch movies & TV"; }; }
+          { "Jellyseerr" = { href = "http://fdegmecic-homelab.local:5055"; description = "Request content"; }; }
+        ];
+      }
+      {
+        "Downloads" = [
+          { "Radarr" = { href = "http://fdegmecic-homelab.local:7878"; description = "Movies"; }; }
+          { "Sonarr" = { href = "http://fdegmecic-homelab.local:8989"; description = "TV Shows"; }; }
+          { "Prowlarr" = { href = "http://fdegmecic-homelab.local:9696"; description = "Indexers"; }; }
+          { "Transmission" = { href = "http://fdegmecic-homelab.local:9091"; description = "Torrent client"; }; }
+          { "Bazarr" = { href = "http://fdegmecic-homelab.local:6767"; description = "Subtitles"; }; }
+        ];
+      }
+      {
+        "System" = [
+          { "Uptime Kuma" = { href = "http://fdegmecic-homelab.local:3001"; description = "Monitoring"; }; }
+        ];
+      }
+    ];
+    settings = {
+      title = "fdegmecic Homelab";
+      background = "https://images.unsplash.com/photo-1502790671504-542ad42d5189?auto=format&fit=crop&w=2560&q=80";
+      cardBlur = "sm";
+      theme = "dark";
+      color = "slate";
+      headerStyle = "clean";
+    };
+  };
+
+  systemd.services.cloudflared-tunnel = {
+    description = "Cloudflare Tunnel";
+    after = [ "network-online.target" ];
+    wants = [ "network-online.target" ];
+    wantedBy = [ "multi-user.target" ];
+    serviceConfig = {
+      ExecStart = "/bin/sh -c '${pkgs.cloudflared}/bin/cloudflared tunnel run --token $(cat /etc/cloudflared/token)'";
+      Restart = "always";
+      RestartSec = "5s";
+    };
+  };
+
   networking.firewall.allowedTCPPorts = [ 22 3001 9091 ];
 
   environment.systemPackages = with pkgs; [
@@ -131,6 +179,7 @@
     htop
     curl
     wget
+    cloudflared
   ];
 
   system.stateVersion = "25.11";
