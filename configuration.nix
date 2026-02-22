@@ -39,10 +39,10 @@
     publish.addresses = true;
   };
 
-  services.logind = {
-    lidSwitch = "ignore";
-    lidSwitchExternalPower = "ignore";
-    lidSwitchDocked = "ignore";
+  services.logind.settings.Login = {
+    HandleLidSwitch = "ignore";
+    HandleLidSwitchExternalPower = "ignore";
+    HandleLidSwitchDocked = "ignore";
   };
 
   systemd.targets.sleep.enable = false;
@@ -123,6 +123,25 @@
     openFirewall = true;
   };
 
+  services.couchdb = {
+    enable = true;
+    bindAddress = "0.0.0.0";
+    adminUser = "admin";
+    adminPass = "obsidian";
+    extraConfig = {
+      chttpd = {
+        enable_cors = "true";
+        max_http_request_size = "4294967296";
+      };
+      cors = {
+        origins = "app://obsidian.md, capacitor://localhost, http://localhost";
+        credentials = "true";
+        methods = "GET, PUT, POST, HEAD, DELETE";
+        headers = "accept, authorization, content-type, origin, referer";
+      };
+    };
+  };
+
   services.homepage-dashboard = {
     enable = true;
     openFirewall = true;
@@ -146,6 +165,7 @@
       {
         "System" = [
           { "Uptime Kuma" = { href = "http://fdegmecic-homelab.local:3001"; description = "Monitoring"; }; }
+          { "CouchDB" = { href = "http://fdegmecic-homelab.local:5984/_utils"; description = "Obsidian Sync"; }; }
         ];
       }
     ];
@@ -171,7 +191,7 @@
     };
   };
 
-  networking.firewall.allowedTCPPorts = [ 22 3001 9091 ];
+  networking.firewall.allowedTCPPorts = [ 22 3001 5984 9091 ];
 
   environment.systemPackages = with pkgs; [
     vim
