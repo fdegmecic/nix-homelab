@@ -127,7 +127,6 @@
     enable = true;
     bindAddress = "0.0.0.0";
     adminUser = "admin";
-    adminPass = "obsidian";
     extraConfig = {
       chttpd = {
         enable_cors = "true";
