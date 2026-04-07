@@ -16,7 +16,7 @@
 
   users.users.fdegmecic = {
     isNormalUser = true;
-    extraGroups = [ "wheel" "networkmanager" "media" ];
+    extraGroups = [ "wheel" "networkmanager" "media" "docker" ];
     openssh.authorizedKeys.keys = [
       "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKTHVwMbydwIudwaoDbeIXdyv9UM0CrfdU5uJvDcUDTA 42947589+fdegmecic@users.noreply.github.com"
     ];
@@ -199,7 +199,11 @@
     curl
     wget
     cloudflared
+    yt-dlp
+    ffmpeg
   ];
+
+  virtualisation.docker.enable = true;
 
   system.stateVersion = "25.11";
 }
