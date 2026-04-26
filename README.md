@@ -1,15 +1,18 @@
 # nix-homelab
 
-| Service     | Port | Path                          |
-| ----------- | ---- | ----------------------------- |
-| Homepage    | 8082 | `/`                           |
-| Jellyfin    | 8096 | `/`                           |
-| Jellyseerr  | 5055 | `/`                           |
-| Radarr      | 7878 | `/`                           |
-| Sonarr      | 8989 | `/`                           |
-| Prowlarr    | 9696 | `/`                           |
-| Bazarr      | 6767 | `/`                           |
-| Transmission| 9091 | `/transmission/web/`          |
-| Flaresolverr| 8191 | `/`                           |
-| Uptime Kuma | 3001 | `/`                           |
-| CouchDB     | 5984 | `/_utils`                     |
+## Services
+
+| Service      | Purpose                                              |
+| ------------ | ---------------------------------------------------- |
+| Jellyfin     | Media server — stream movies and TV                  |
+| Jellyseerr   | Request UI for new movies/shows                      |
+| Radarr       | Movie library manager + automation                   |
+| Sonarr       | TV library manager + automation                      |
+| Prowlarr     | Indexer aggregator for Radarr/Sonarr                 |
+| Bazarr       | Subtitle fetcher for Radarr/Sonarr                   |
+| Transmission | Torrent client                                       |
+| Flaresolverr | Cloudflare bypass proxy for indexers                 |
+| Homepage     | Dashboard linking all services                       |
+| Uptime Kuma  | Service health monitoring                            |
+| CouchDB      | Backend for Obsidian LiveSync                        |
+| Cloudflared  | Tunnel for public access without opening ports       |
