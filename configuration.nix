@@ -204,6 +204,7 @@
   ];
 
   virtualisation.docker.enable = true;
+  virtualisation.docker.package = pkgs.docker_29;
 
   system.stateVersion = "25.11";
 }
