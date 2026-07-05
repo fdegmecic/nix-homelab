@@ -60,6 +60,7 @@
     "d /srv/media/downloads/.incomplete 0775 root media -"
     "d /srv/media/downloads/radarr 0775 root media -"
     "d /srv/media/downloads/tv 0775 root media -"
+    "d /srv/backups/obsidian 0700 root root -"
   ];
 
   services.transmission.group = "media";
@@ -136,7 +137,7 @@
         origins = "app://obsidian.md, capacitor://localhost, http://localhost";
         credentials = "true";
         methods = "GET, PUT, POST, HEAD, DELETE";
-        headers = "accept, authorization, content-type, origin, referer";
+        headers = "accept, authorization, content-type, origin, referer, cf-access-client-id, cf-access-client-secret";
       };
     };
   };
@@ -184,9 +185,40 @@
     wants = [ "network-online.target" ];
     wantedBy = [ "multi-user.target" ];
     serviceConfig = {
-      ExecStart = "/bin/sh -c '${pkgs.cloudflared}/bin/cloudflared tunnel run --token $(cat /etc/cloudflared/token)'";
+      ExecStart = "/bin/sh -c '${pkgs.cloudflared}/bin/cloudflared tunnel run --protocol http2 --token $(cat /etc/cloudflared/token)'";
       Restart = "always";
       RestartSec = "5s";
+    };
+  };
+
+  systemd.services.obsidian-backup = {
+    description = "Daily Obsidian LiveSync (CouchDB) backup";
+    after = [ "couchdb.service" ];
+    serviceConfig = {
+      Type = "oneshot";
+      ExecStart = pkgs.writeShellScript "obsidian-backup" ''
+        set -euo pipefail
+        DIR=/srv/backups/obsidian
+        PW=$(cat /etc/couchdb-backup.pw)
+        DATE=$(${pkgs.coreutils}/bin/date +%Y-%m-%d)
+        OUT="$DIR/obsidianvault-$DATE.json.gz"
+        ${pkgs.curl}/bin/curl -sf -u "admin:$PW" \
+          "http://localhost:5984/obsidianvault/_all_docs?include_docs=true" \
+          | ${pkgs.gzip}/bin/gzip -9 > "$OUT.tmp"
+        ${pkgs.coreutils}/bin/mv "$OUT.tmp" "$OUT"
+        # keep the newest 14 daily backups
+        ${pkgs.coreutils}/bin/ls -1t "$DIR"/obsidianvault-*.json.gz \
+          | ${pkgs.coreutils}/bin/tail -n +15 \
+          | ${pkgs.findutils}/bin/xargs -r ${pkgs.coreutils}/bin/rm -f
+      '';
+    };
+  };
+
+  systemd.timers.obsidian-backup = {
+    wantedBy = [ "timers.target" ];
+    timerConfig = {
+      OnCalendar = "*-*-* 03:00:00";
+      Persistent = true;
     };
   };
 
